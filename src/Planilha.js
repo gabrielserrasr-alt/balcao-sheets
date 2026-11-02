@@ -32,9 +32,9 @@ function montarLinhas(pedidos, hoje) {
     const alerta = avaliarPedido(p, hoje);
     return [
       p.id,
-      p.cliente,
-      p.descricao,
-      STATUS[p.status] || p.status,
+      textoSeguro(p.cliente),
+      textoSeguro(p.descricao),
+      STATUS[p.status] || textoSeguro(p.status),
       Number(p.valor),
       VENDA_REALIZADA.indexOf(p.status) >= 0 ? 'Sim' : 'Não',
       lerData(p.criado_em),
@@ -48,7 +48,7 @@ function montarLinhas(pedidos, hoje) {
 function montarAtencao(atencao) {
   return atencao.map(({ pedido, alerta }) => [
     pedido.id,
-    pedido.cliente,
+    textoSeguro(pedido.cliente),
     Number(pedido.valor),
     alerta.titulo,
     alerta.equipeSenior ? 'Sênior' : '',
@@ -126,6 +126,16 @@ function escreverAtencao(planilha, atencao) {
     return [(contato ? texto.setLinkUrl(contato.link) : texto).build()];
   }));
   aba.autoResizeColumns(1, CABECALHO_ATENCAO.length);
+}
+
+/**
+ * Nome de cliente e descrição vêm de quem digitou no Balcão. Um texto que começa com "=" viraria fórmula
+ * no Sheets (e uma fórmula como IMPORTXML pode mandar dados da planilha para fora). O apóstrofo faz o
+ * Sheets guardar como texto puro, e ele não aparece na célula.
+ */
+function textoSeguro(texto) {
+  const valor = String(texto == null ? '' : texto);
+  return /^[=+\-@	]/.test(valor) ? "'" + valor : valor;
 }
 
 function obterAba(planilha, nome) {
