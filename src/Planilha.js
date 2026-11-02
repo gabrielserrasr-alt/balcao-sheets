@@ -135,7 +135,7 @@ function escreverAtencao(planilha, atencao) {
  */
 function textoSeguro(texto) {
   const valor = String(texto == null ? '' : texto);
-  return /^[=+\-@	]/.test(valor) ? "'" + valor : valor;
+  return /^[=+\-@\t\r]/.test(valor) ? "'" + valor : valor;
 }
 
 function obterAba(planilha, nome) {
